@@ -1,0 +1,22 @@
+run:
+  timeout: 5m
+
+linters:
+  enable:
+    - exportloopref
+    - gocritic
+    - gofmt
+    - gosec
+    - lll
+    - misspell
+    - nakedret
+    - unconvert
+    - unparam
+
+gocritic:
+  enabled-checks:
+    - typeUnparen
+
+  enabled-tags:
+    - performance
+    - style
