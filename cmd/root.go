@@ -22,6 +22,9 @@ var (
 var (
 	listenAddress string
 	metricsPath   string
+	hostURL       string
+	username      string
+	password      string
 
 	rootCmd = &cobra.Command{
 		Use:          "smartpvms_exporter",
@@ -78,6 +81,27 @@ func init() {
 		"web.telemetry-path",
 		"/metrics",
 		"path under which to expose metrics",
+	)
+
+	rootCmd.Flags().StringVar(
+		&hostURL,
+		"smartpvms.host-url",
+		"https://eu5.fusionsolar.huawei.com",
+		"host url of the management system",
+	)
+
+	rootCmd.Flags().StringVar(
+		&username,
+		"smartpvms.username",
+		"https://eu5.fusionsolar.huawei.com",
+		"username to authenticate against the management system",
+	)
+
+	rootCmd.Flags().StringVar(
+		&password,
+		"smartpvms.password",
+		"https://eu5.fusionsolar.huawei.com",
+		"password to authenticate against the management system",
 	)
 
 	if err := viper.BindPFlags(rootCmd.Flags()); err != nil {
