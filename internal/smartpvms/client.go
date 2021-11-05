@@ -92,9 +92,9 @@ func (c *Client) SetXSRFToken(t string) {
 	})
 }
 
-func NewClient(hu string) *Client {
+func NewClient(bu string) *Client {
 	r := resty.New()
-	r.SetHostURL(hu)
+	r.SetBaseURL(bu)
 
 	return &Client{
 		resty: r,

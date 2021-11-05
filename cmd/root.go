@@ -22,7 +22,7 @@ var (
 var (
 	listenAddress string
 	metricsPath   string
-	hostURL       string
+	baseURL       string
 	username      string
 	password      string
 
@@ -84,10 +84,10 @@ func init() {
 	)
 
 	rootCmd.Flags().StringVar(
-		&hostURL,
-		"smartpvms.host-url",
+		&baseURL,
+		"smartpvms.base-url",
 		"https://eu5.fusionsolar.huawei.com",
-		"host url of the management system",
+		"base url of the management system",
 	)
 
 	rootCmd.Flags().StringVar(
