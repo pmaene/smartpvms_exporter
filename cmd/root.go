@@ -2,11 +2,14 @@ package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
-	"github.com/pmaene/smartpvms_exporter/internal"
+	"github.com/pmaene/smartpvms_exporter/internal/collectors"
+	"github.com/pmaene/smartpvms_exporter/internal/smartpvms"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/log"
@@ -20,17 +23,20 @@ var (
 )
 
 var (
-	listenAddress string
-	metricsPath   string
-	baseURL       string
-	username      string
-	password      string
+	listenAddress        string
+	metricsPath          string
+	spvmsBaseURL         string
+	spvmsUsername        string
+	spvmsPassword        string
+	spvmsPasswordFile    string
+	spvmsRefreshInterval time.Duration
 
 	rootCmd = &cobra.Command{
 		Use:          "smartpvms_exporter",
 		Short:        "SmartPVMS Exporter",
 		SilenceUsage: true,
 		Run:          runRoot,
+		PreRun:       runStartPre,
 	}
 )
 
@@ -84,24 +90,38 @@ func init() {
 	)
 
 	rootCmd.Flags().StringVar(
-		&baseURL,
+		&spvmsBaseURL,
 		"smartpvms.base-url",
 		"https://eu5.fusionsolar.huawei.com",
 		"base url of the management system",
 	)
 
 	rootCmd.Flags().StringVar(
-		&username,
+		&spvmsUsername,
 		"smartpvms.username",
-		"https://eu5.fusionsolar.huawei.com",
+		"",
 		"username to authenticate against the management system",
 	)
 
 	rootCmd.Flags().StringVar(
-		&password,
+		&spvmsPassword,
 		"smartpvms.password",
-		"https://eu5.fusionsolar.huawei.com",
+		"",
 		"password to authenticate against the management system",
+	)
+
+	rootCmd.Flags().StringVar(
+		&spvmsPasswordFile,
+		"smartpvms.password-file",
+		"",
+		"path to the password to authenticate against the management system",
+	)
+
+	rootCmd.Flags().DurationVar(
+		&spvmsRefreshInterval,
+		"smartpvms.refresh-interval",
+		5*time.Second,
+		"interval at which to query the management system",
 	)
 
 	if err := viper.BindPFlags(rootCmd.Flags()); err != nil {
@@ -117,12 +137,58 @@ func initConfig() {
 	)
 }
 
+func runStartPre(cmd *cobra.Command, args []string) {
+	if viper.GetString("smartpvms.password-file") != "" {
+		buf, err := ioutil.ReadFile(viper.GetString("smartpvms.password-file"))
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		viper.Set("smartpvms.password", string(buf))
+	}
+}
+
 func runRoot(cmd *cobra.Command, args []string) {
+	// arguments
+	if viper.GetString("smartpvms.username") == "" {
+		log.Fatal("management system username not set")
+	}
+
+	if viper.GetString("smartpvms.password") == "" {
+		log.Fatal("management system password not set")
+	}
+
+	// main
 	log.Infoln("starting", cmd.Name(), cmd.Version)
 
-	c := internal.NewCollector()
-	if err := prometheus.Register(c); err != nil {
-		log.Fatal(err)
+	cfg := &smartpvms.Config{
+		BaseURL:  viper.GetString("smartpvms.base-url"),
+		Username: viper.GetString("smartpvms.username"),
+		Password: viper.GetString("smartpvms.password"),
+	}
+
+	{
+		c := collectors.NewPlantsCollector(
+			cfg.Client(),
+			viper.GetDuration("smartpvms.refresh-interval"),
+			log.Base(),
+		)
+
+		if err := prometheus.Register(c); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	{
+		c := collectors.NewResidentialInvertersCollector(
+			cfg.Client(),
+			viper.GetDuration("smartpvms.refresh-interval"),
+			log.Base(),
+		)
+
+		if err := prometheus.Register(c); err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	http.Handle(
