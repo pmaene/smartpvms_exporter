@@ -25,7 +25,7 @@ func (c *Cache[T]) IsValid() bool {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
 
-	return time.Now().Sub(c.timestamp) < c.Refresher.Interval()
+	return time.Since(c.timestamp) < c.Refresher.Interval()
 }
 
 func (c *Cache[T]) Timestamp() time.Time {
