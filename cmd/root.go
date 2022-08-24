@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
@@ -139,7 +138,7 @@ func initConfig() {
 
 func runStartPre(cmd *cobra.Command, args []string) {
 	if viper.GetString("smartpvms.password-file") != "" {
-		buf, err := ioutil.ReadFile(viper.GetString("smartpvms.password-file"))
+		buf, err := os.ReadFile(viper.GetString("smartpvms.password-file"))
 		if err != nil {
 			log.Fatal(err)
 		}
