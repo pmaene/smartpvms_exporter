@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"strings"
@@ -24,6 +25,7 @@ var (
 var (
 	listenAddress        string
 	metricsPath          string
+	readHeaderTimeout    time.Duration
 	spvmsBaseURL         string
 	spvmsUsername        string
 	spvmsPassword        string
@@ -86,6 +88,13 @@ func init() {
 		"web.telemetry-path",
 		"/metrics",
 		"path under which to expose metrics",
+	)
+
+	rootCmd.Flags().DurationVar(
+		&readHeaderTimeout,
+		"web.read-header-timeout",
+		5*time.Second,
+		"timeout for reading request headers",
 	)
 
 	rootCmd.Flags().StringVar(
@@ -213,8 +222,21 @@ func runRoot(cmd *cobra.Command, args []string) {
 		}
 	})
 
+	s := http.Server{
+		ReadHeaderTimeout: viper.GetDuration("web.read-header-timeout"),
+	}
+
+	l, err := net.Listen(
+		"tcp",
+		viper.GetString("web.listen-address"),
+	)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	log.Infoln("listening on", viper.GetString("web.listen-address"))
-	if err := http.ListenAndServe(viper.GetString("web.listen-address"), nil); err != nil {
+	if err := s.Serve(l); err != nil {
 		log.Fatal(err)
 	}
 }
