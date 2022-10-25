@@ -7,7 +7,7 @@ require (
 	github.com/iancoleman/strcase v0.2.0
 	github.com/prometheus/client_golang v1.11.0
 	github.com/prometheus/common v0.26.0
-	github.com/spf13/cobra v1.6.0
+	github.com/spf13/cobra v1.6.1
 	github.com/spf13/viper v1.13.0
 	golang.org/x/exp v0.0.0-20220328175248-053ad81199eb
 )
