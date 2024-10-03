@@ -23,7 +23,7 @@ jobs:
           go-version: "^1.19"
 
       - name: Run GolangCI-Lint
-        uses: golangci/golangci-lint-action@v6.1.0
+        uses: golangci/golangci-lint-action@v6.1.1
 
   build:
     name: Build
