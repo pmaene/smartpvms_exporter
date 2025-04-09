@@ -1,6 +1,6 @@
 module github.com/pmaene/smartpvms_exporter
 
-go 1.19
+go 1.24
 
 require (
 	github.com/go-resty/resty/v2 v2.16.2
