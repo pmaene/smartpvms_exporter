@@ -5,7 +5,7 @@ go 1.24.0
 toolchain go1.24.1
 
 require (
-	github.com/go-resty/resty/v2 v2.16.2
+	github.com/go-resty/resty/v2 v2.17.2
 	github.com/iancoleman/strcase v0.3.0
 	github.com/prometheus/client_golang v1.11.1
 	github.com/prometheus/common v0.26.0
@@ -36,8 +36,8 @@ require (
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/net v0.39.0 // indirect
-	golang.org/x/sys v0.32.0 // indirect
+	golang.org/x/net v0.43.0 // indirect
+	golang.org/x/sys v0.35.0 // indirect
 	golang.org/x/text v0.28.0 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6 // indirect
